@@ -35,10 +35,6 @@ public static final double trainfrac = 0.8;
     }
 
 
-    // TASK 3: Use the DataSet class methods to plot the 2D data (binary and multi-class)
-
-
-
     // TASK 4: write a new method in DataSet.java which takes as arguments to DataPoint objects,
     // and returns the Euclidean distance between those two points (as a double)
 
