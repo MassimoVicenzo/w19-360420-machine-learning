@@ -47,9 +47,19 @@ public static final double trainfrac = 0.8;
 
     // TASK 6: loop over the datapoints in the held out test set, and make predictions for Each
     // point based on nearest neighbors in training set. Calculate accuracy of model.
+    double[] points = new double[test.size()];
 
-
-
+    for (int i = 0; i<test.size(); i++) {
+      DataPoint DP = test.get(i);
+      String prediction = k.predict(train, DP);
+      if (prediction.equals(DP.getLabel())) {
+        points[i] = 1;
+      } else {
+        points[i] = 0;
+      }
+    }
+    System.out.println(mean(points));
+    System.out.println(standardDeviation(points));
 
   }
 
