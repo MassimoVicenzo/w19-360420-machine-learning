@@ -24,52 +24,66 @@ public static final double trainfrac = 0.7;
 
     KNNClassifier k = new KNNClassifier(3);
 
+// -------------------------------------------------------- //
+
     double[] sucRate = new double[1000];
     double[] precision = new double[1000];
     double[] recall = new double[1000];
 
+// -------------------------------------------------------- //
+
     for (int n = 0;n<1000;n++) {  //test kNN multiple times
 
+// -------------------------------------- //
+
       for (int j = 0; j<List.size();j++) {
-        DataPoint DPreset = List.get(j);
-        DPreset.setTestOrTrain("");
+        DataPoint DPreset = List.get(j);          // removes the test or train label from the data,
+        DPreset.setTestOrTrain("");               // otherwise it interferes with choosing new train/test data
       }
+
+// ------------------------------------- //
 
       List<DataPoint> test = DataSet.getTestSet(List, testfrac);
       List<DataPoint> train = DataSet.getTrainingSet(List, trainfrac);
-
-      double[] sucRatePoints = new double[test.size()];
+                                                                          // Making the test/training sets and creating
+      double[] sucRatePoints = new double[test.size()];                   //places to store the points
       List<Double> precisionPoints = new ArrayList<Double>();
       List<Double> recallPoints = new ArrayList<Double>();
 
+// ----------------------------------- //
+
       for (int i = 0; i<test.size(); i++) {
         sucRatePoints[i] = 0;
-      }
+      }                                                // Emptying the points arrays/lists
       precisionPoints.clear();
       recallPoints.clear();
 
-      for (int i = 0; i<test.size(); i++) {
+// ---------------------------------- //
+
+      for (int i = 0; i<test.size(); i++) {           //The actual prediction test
         DataPoint DP = test.get(i);
 
         String prediction = k.predict(train, DP);
-        if (prediction.equals(DP.getLabel())) {
+        if (prediction.equals(DP.getLabel())) {     // if the prediciton and the actual are the same
           sucRatePoints[i] = 1;
-          if (prediction.equals("malignant")) {
+          if (prediction.equals("malignant")) {         // if they are the same and they are malignant
             precisionPoints.add(1.0);
             recallPoints.add(1.0);
           }
-        } else {
+        } else {                                    // if the prediction and the actual are different
           sucRatePoints[i] = 0;
-          if (prediction.equals("malignant")) {
+          if (prediction.equals("malignant")) {         // if we predicted malignant
             precisionPoints.add(0.0);
-          } else {
+          } else {                                      // if we predicted benign
             recallPoints.add(0.0);
           }
         }
       }
 
+// ------------------------------ //
+
       sucRate[n] = mean(sucRatePoints) * 100;
-      precision[n] = mean(precisionPoints) * 100;
+      precision[n] = mean(precisionPoints) * 100;    // getting the average rates in %
       recall[n] = mean(recallPoints) * 100;
 
     }
@@ -77,8 +91,8 @@ public static final double trainfrac = 0.7;
     System.out.println("SD: " + standardDeviation(sucRate));
     System.out.println("");
     System.out.println("Precision: " + mean(precision));
-    System.out.println("SD: " + standardDeviation(precision));
-    System.out.println("");
+    System.out.println("SD: " + standardDeviation(precision));    //calculating and printing the Means and SDs of
+    System.out.println("");                                       // success rate, precision and recall
     System.out.println("Recall: " + mean(recall));
     System.out.println("SD: " + standardDeviation(recall));
 
@@ -101,7 +115,7 @@ public static final double trainfrac = 0.7;
 
     double sum = 0.0;
 
-    for (double a : list){
+    for (double a : list){                              //I added this due to recall and precision points' being lists and not arrays
       sum += a;
     }
     return (double)sum/list.size();
