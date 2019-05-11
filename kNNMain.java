@@ -1,18 +1,16 @@
 import java.util.List;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-
+import java.util.ArrayList;
 
 
 public class kNNMain{
 
-public static final double testfrac = 0.2;
-public static final double trainfrac = 0.8;
+public static final double testfrac = 0.3;
+public static final double trainfrac = 0.7;
+
 
   public static void main(String... args) throws FileNotFoundException{
-
-    // TASK 1: Use command line arguments to point DataSet.readDataSet method to
-    // the desired file. Choose a given DataPoint, and print its features and label
 
 
     List<DataPoint> List = DataSet.readDataSet(args[0]);
@@ -24,42 +22,65 @@ public static final double trainfrac = 0.8;
     System.out.println(Arrays.toString(x));
 */
 
-    //TASK 2:Use the DataSet class to split the fullDataSet into Training and Held Out Test Dataset
-
-    List<DataPoint> test = DataSet.getTestSet(List, testfrac);
-    List<DataPoint> train = DataSet.getTrainingSet(List, trainfrac);
-
-
-    // TASK 4: write a new method in DataSet.java which takes as arguments to DataPoint objects,
-    // and returns the Euclidean distance between those two points (as a double)
-
-//  System.out.print(DataSet.distanceEuclid(test.get(1), test.get(0)));  // TEST: prints distance between two values
-
-    // TASK 5: Use the KNNClassifier class to determine the k nearest neighbors to a given DataPoint,
-    // and make a print a predicted target label
-
     KNNClassifier k = new KNNClassifier(3);
 
-/*
-    String prediction = k.predict(List, DP);
-    System.out.println(prediction);
-*/
+    double[] sucRate = new double[1000];
+    double[] precision = new double[1000];
+    double[] recall = new double[1000];
 
-    // TASK 6: loop over the datapoints in the held out test set, and make predictions for Each
-    // point based on nearest neighbors in training set. Calculate accuracy of model.
-    double[] points = new double[test.size()];
+    for (int n = 0;n<1000;n++) {  //test kNN multiple times
 
-    for (int i = 0; i<test.size(); i++) {
-      DataPoint DP = test.get(i);
-      String prediction = k.predict(train, DP);
-      if (prediction.equals(DP.getLabel())) {
-        points[i] = 1;
-      } else {
-        points[i] = 0;
+      for (int j = 0; j<List.size();j++) {
+        DataPoint DPreset = List.get(j);
+        DPreset.setTestOrTrain("");
       }
+
+      List<DataPoint> test = DataSet.getTestSet(List, testfrac);
+      List<DataPoint> train = DataSet.getTrainingSet(List, trainfrac);
+
+      double[] sucRatePoints = new double[test.size()];
+      List<Double> precisionPoints = new ArrayList<Double>();
+      List<Double> recallPoints = new ArrayList<Double>();
+
+      for (int i = 0; i<test.size(); i++) {
+        sucRatePoints[i] = 0;
+      }
+      precisionPoints.clear();
+      recallPoints.clear();
+
+      for (int i = 0; i<test.size(); i++) {
+        DataPoint DP = test.get(i);
+
+        String prediction = k.predict(train, DP);
+        if (prediction.equals(DP.getLabel())) {
+          sucRatePoints[i] = 1;
+          if (prediction.equals("malignant")) {
+            precisionPoints.add(1.0);
+            recallPoints.add(1.0);
+          }
+        } else {
+          sucRatePoints[i] = 0;
+          if (prediction.equals("malignant")) {
+            precisionPoints.add(0.0);
+          } else {
+            recallPoints.add(0.0);
+          }
+        }
+      }
+
+      sucRate[n] = mean(sucRatePoints) * 100;
+      precision[n] = mean(precisionPoints) * 100;
+      recall[n] = mean(recallPoints) * 100;
+
     }
-    System.out.println(mean(points));
-    System.out.println(standardDeviation(points));
+    System.out.println("Mean: " + mean(sucRate));
+    System.out.println("SD: " + standardDeviation(sucRate));
+    System.out.println("");
+    System.out.println("Precision: " + mean(precision));
+    System.out.println("SD: " + standardDeviation(precision));
+    System.out.println("");
+    System.out.println("Recall: " + mean(recall));
+    System.out.println("SD: " + standardDeviation(recall));
 
   }
 
@@ -76,6 +97,16 @@ public static final double trainfrac = 0.8;
     return (double)sum/arr.length;
   }
 
+  public static double mean(List<Double> list){
+
+    double sum = 0.0;
+
+    for (double a : list){
+      sum += a;
+    }
+    return (double)sum/list.size();
+  }
+
   public static double standardDeviation(double[] arr){
     /*
     Method that takes as an argument an array of doubles
@@ -88,6 +119,16 @@ public static final double trainfrac = 0.8;
       sum += Math.pow(a-avg,2);
     }
     return (double)sum/arr.length;
+  }
+
+  public static double standardDeviation(List<Double> list){
+
+    double avg = mean(list);
+    double sum = 0.0;
+    for (double a : list){
+      sum += Math.pow(a-avg,2);
+    }
+    return (double)sum/list.size();
   }
 
 }
